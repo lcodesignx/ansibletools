@@ -12,6 +12,14 @@ c7vm2
 c8vm1
 c8vm2
 
+[demos]
+demo1
+demo2
+demo3
+
+[demos:vars]
+ansible_user=lupera1
+
 [all:vars]
 ansible_user=lcox
 #ansible_python_interpreter=/usr/bin/python3
