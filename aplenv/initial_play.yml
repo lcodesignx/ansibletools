@@ -1,0 +1,13 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: modify sudoers file
+      lineinfile:
+        path: /etc/sudoers
+        line: lupera1     ALL=(ALL)       NOPASSWD:ALL
+    
+    - name: yum update
+      yum:
+        name: "*"
+        state: latest

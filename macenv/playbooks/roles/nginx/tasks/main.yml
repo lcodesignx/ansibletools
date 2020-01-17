@@ -1,0 +1,36 @@
+- name: install epel repository
+  yum:
+    name: epel-release
+    state: present
+
+- name: install nginx package
+  yum:
+    name: nginx
+    state: present
+    
+- name: enable http traffic through firewall
+  firewalld:
+    service: http
+    state: enabled
+    permanent: yes
+    immediate: yes
+
+- name: enable https traffic through firewall
+  firewalld:
+    service: https
+    state: enabled
+    permanent: yes
+    immediate: yes
+
+- name: change contents of index.html
+  copy:
+    src: index.html
+    dest: /usr/share/nginx/html/
+  tags: ['chg-ix']
+
+- name: start and enable nginx
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+

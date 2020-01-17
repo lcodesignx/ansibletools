@@ -1,0 +1,5 @@
+---
+- hosts: all
+  become: true
+  roles:
+  - role: "/home/admin/Devops/gitrepos/LXTools/ansible/roles/default"

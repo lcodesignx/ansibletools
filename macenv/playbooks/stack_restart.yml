@@ -1,0 +1,8 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: restart postgresql-9.6
+      service:
+        name: postgresql-9.6
+        state: restarted

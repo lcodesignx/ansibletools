@@ -1,0 +1,44 @@
+- name: install epel repository
+  yum: name=epel-release state=present
+
+- name: install dependency packages
+  yum:
+    name:
+      - python-psycopg2
+    state: present
+
+- name: install postgresql repository
+  yum: 
+    name: "https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-7-x86_64/pgdg-centos96-9.6-3.noarch.rpm"
+    state: present
+
+- name: install postgresql packages
+  yum:
+    name:
+      - postgresql96
+      - postgresql96-server
+      - postgresql96-devel
+
+# Should only run once
+- name: initialize postgresql database
+  command: "/usr/pgsql-9.6/bin/postgresql96-setup initdb"
+  tags: ['initdb']
+
+- name: replace ident for trust
+  replace:
+    path: /var/lib/pgsql/9.6/data/pg_hba.conf  
+    regexp: 'ident'
+    replace: 'trust'
+  notify: restart postgresql
+
+- name: replace peer for trust
+  replace:
+    path: /var/lib/pgsql/9.6/data/pg_hba.conf  
+    regexp: 'peer'
+    replace: 'trust'
+  notify: restart postgresql
+
+- name: ensure postgresql is started and enabled
+  service: name=postgresql-9.6 state=started enabled=yes
+
+

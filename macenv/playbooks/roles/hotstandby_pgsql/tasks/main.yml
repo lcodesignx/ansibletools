@@ -1,0 +1,26 @@
+- name: copy custom postgresql.conf file
+  copy:
+    src: postgresql.conf
+    dest: /var/lib/pgsql/9.6/data
+    owner: postgres
+    group: postgres
+    mode: 0600
+  notify: restart postgres
+
+- name: copy custom pg_hba.conf file
+  copy:
+    src: pg_hba.conf
+    dest: /var/lib/pgsql/9.6/data
+    owner: postgres
+    group: postgres
+    mode: 0600
+  notify: restart postgres
+
+- name: add replication user to database
+  postgresql_user:
+    name: 'repuser'
+    password: 'pass'
+    role_attr_flags: REPLICATION,LOGIN
+    conn_limit: -1
+
+

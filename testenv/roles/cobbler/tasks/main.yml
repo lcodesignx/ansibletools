@@ -1,0 +1,63 @@
+- name: enable epel repository
+  yum:
+    name: epel-release
+    state: present
+
+- name: install apache webserver
+  yum: name=httpd state=present
+
+- name: install cobbler and required packages
+  yum:
+    name:
+      - cobbler
+      - cobbler-web
+      - dnsmasq
+      - syslinux
+      - pykickstart 
+      - xinetd
+      - vim
+
+- name: ensure apache started and enabled
+  service: 
+    name: httpd
+    state: started
+
+- name: ensure cobbler started and enabled
+  service: name=cobblerd state=started enabled=yes
+
+- name: Disable SELinux
+  selinux:
+    state: disabled
+
+- name: open port 80
+  firewalld:
+    port: 80/tcp
+    permanent: yes
+    state: enabled
+
+- name: open port 443
+  firewalld:
+    port: 443/tcp
+    permanent: yes
+    state: enabled
+
+- name: open port 69 TCP
+  firewalld:
+    port: 69/tcp
+    permanent: yes
+    state: enabled
+
+- name: open port 69 UDP
+  firewalld:
+    port: 69/udp
+    permanent: yes
+    state: enabled
+
+- name: open port 4011
+  firewalld:
+    port: 4011/udp
+    permanent: yes
+    state: enabled
+
+- name: restart system
+  reboot:

@@ -1,0 +1,129 @@
+---
+# Netbox configuration
+- name: add ius centos 7 repo
+  yum: name="https://centos7.iuscommunity.org/ius-release.rpm" state=present
+
+- name: update git to version 2
+  yum: name=git2u-all state=present
+
+- name: install dependency packages
+  yum:
+    name:
+      - gcc
+      - python36
+      - python36-devel
+      - python36-setuptools
+      - libxml2-devel
+      - libxslt-devel
+      - libffi-devel
+      - graphviz
+      - openssl-devel
+      - redhat-rpm-config
+      - redis
+      - python-psycopg2
+    state: present
+
+- name: install apache2
+  yum: name=httpd state=present
+
+- name: ensure apache2 is started and enabled
+  service: name=httpd state=started enabled=yes
+
+- name: install pip3
+  command: easy_install-3.6 pip
+
+- name: create symbolic link to python36
+  file:
+    src: /usr/bin/python36
+    dest: /usr/bin/python3
+    state: link
+  tags:
+    - 'sym'
+
+- name: create netbox directory structure
+  file:
+    path: /opt/netbox
+    state: directory
+
+- name: clone the git repository
+  git:
+    repo: https://github.com/netbox-community/netbox.git
+    dest: /opt/netbox/
+
+- name: ensure media folder is accessible
+  file:
+    path: /opt/netbox/netbox/media
+    group: lcox
+
+- name: install python packages
+  command: "/usr/local/bin/pip3 install -r /opt/netbox/requirements.txt"
+
+- name: copy configuration example file
+  copy:
+    src: configuration.py
+    dest: /opt/netbox/netbox/netbox
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: ensure redis service is running and enabled
+  service: name=redis state=started enabled=yes
+
+- name: install supervisor
+  yum: name=supervisor state=present
+
+- name: install gunicorn
+  command: "/usr/local/bin/pip3 install gunicorn"
+
+- name: copy gunicorn configuration file to netbox
+  copy:
+    src: gunicorn_config.py
+    dest: /opt/netbox
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: create a supervisor configuration
+  copy:
+    dest: /etc/supervisord.d/netbox.ini
+    content: |
+        [program:netbox]
+        command = gunicorn -c /opt/netbox/gunicorn_config.py netbox.wsgi
+        directory = /opt/netbox/netbox/
+        user = apache
+
+- name: start and enable supervisord
+  service: name=supervisord state=started enabled=yes
+
+- name: create httpd virtualhosts for netbox
+  copy:
+    dest: /etc/httpd/conf.d/netbox.conf
+    content: |
+        Listen 8085
+            ProxyPreserveHost On
+            ServerName 10.1.10.34
+            Alias /static /opt/netbox/netbox/static
+            <Directory /opt/netbox/netbox/static>
+                    Options Indexes FollowSymLinks MultiViews
+                    AllowOverride None
+                    Require all granted
+            </Directory>
+            <Location  /static>
+                    ProxyPass !
+            </Location>
+
+            ProxyPass / http://127.0.0.1:8001/
+            ProxyPassReverse / http://127.0.0.1:8001/
+  notify: restart httpd
+
+- name: open port 80
+  firewalld:
+    port: 80/tcp
+    permanent: yes
+    state: enabled
+
+- name: open port 8085
+  firewalld:
+    port: 8085/tcp
+    permanent: yes
+    state: enabled

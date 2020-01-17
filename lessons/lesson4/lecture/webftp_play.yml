@@ -1,0 +1,14 @@
+---
+- hosts: webservers
+  become: true
+  tasks:
+    - name: install webserver package {{ packages }}
+      yum:
+        name: "{{ packages }}"
+
+- hosts: ftpservers
+  become: true
+  tasks:
+    - name: install ftpserver package {{ packages }}
+      yum:
+        name: "{{ packages }}"

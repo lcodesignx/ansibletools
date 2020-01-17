@@ -1,0 +1,23 @@
+---
+galaxy_info:
+  author: Mark Honomichl
+  description: Installs the Splunk Forwarder
+  company: AustinCloudGuru
+  license: MIT
+  min_ansible_version: 2.0
+  platforms:
+    - name: Amazon
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - xenial
+        - bionic
+    - name: EL
+      versions:
+        - 7
+  galaxy_tags:
+    - splunk
+    - splunkforwarder
+
+dependencies: []

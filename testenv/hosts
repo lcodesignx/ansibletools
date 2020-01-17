@@ -1,0 +1,56 @@
+# ----- Ubuntu Systems --------- #
+[ubuntu_lb]
+ulb1
+
+[ubuntu_db]
+udb1
+
+[ubuntu_web]
+uapp1
+uapp2
+#cobbler
+
+[ubuntu_repo]
+#lxrepo
+
+[ubuntu:children]
+ubuntu_lb
+ubuntu_db
+ubuntu_web
+ubuntu_repo
+
+[ubuntu:vars]
+ansible_ssh_user=lcox
+# ----- Ubuntu Systems --------- #
+
+# ----- CentOS Systems --------- #
+[centos_lb]
+clb1
+
+[centos_db]
+cdb1
+#postgresql
+
+[centos_web]
+capp1
+capp2
+#netbox
+elk
+
+[centos_repo]
+#centosrepo
+
+[centos:children]
+centos_lb
+centos_db
+centos_web
+centos_repo
+
+[centos:vars]
+ansible_ssh_user=lcox
+# ----- CentOS Systems --------- #
+
+# ----- Service Groups --------- #
+[databases:children]
+ubuntu_db
+centos_db

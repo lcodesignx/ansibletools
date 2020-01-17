@@ -1,0 +1,52 @@
+#version=DEVEL
+# System authorization information
+auth --enableshadow --passalgo=sha512
+# Use CDROM installation media
+cdrom
+# Use graphical install
+graphical
+# Run the Setup Agent on first boot
+firstboot --enable
+ignoredisk --only-use=sda
+# Keyboard layouts
+keyboard --vckeymap=us --xlayouts='us'
+# System language
+lang en_US.UTF-8
+
+# Network information
+network  --bootproto=dhcp --device=eth0 --noipv6 --activate
+network  --hostname=app01
+
+# Root password
+rootpw --iscrypted $6$lDW1G.C/fINzCElF$L3Yg2b3gankvU0GqWIyxJ1Vz/V4Vaw.CiLGkbUToILdkPSdzoptHaPu8LppdLGBnOdugq5rBGkihCPB34Ueo01
+# System services
+services --enabled="chronyd"
+# System timezone
+timezone America/New_York --isUtc
+user --groups=wheel --name=lcox --password=$6$yv1rliuTWzTXxgYi$77ag8yae05PwreQuTCJOU68jtVMlopD4d25CJbmrdOC2qlFts8EhmrAr3A4FwFz1yjh.Rt26sxET5ur6IbIbO1 --iscrypted --gecos="lcox"
+# System bootloader configuration
+bootloader --append=" crashkernel=auto" --location=mbr --boot-drive=sda
+autopart --type=lvm
+# Partition clearing information
+clearpart --all --initlabel --drives=sda
+
+%packages
+@^minimal
+@core
+chrony
+kexec-tools
+
+%end
+
+%addon com_redhat_kdump --enable --reserve-mb='auto'
+
+%end
+
+%anaconda
+pwpolicy root --minlen=6 --minquality=1 --notstrict --nochanges --notempty
+pwpolicy user --minlen=6 --minquality=1 --notstrict --nochanges --emptyok
+pwpolicy luks --minlen=6 --minquality=1 --notstrict --nochanges --notempty
+%end
+
+# Reboot when the install is finished
+reboot

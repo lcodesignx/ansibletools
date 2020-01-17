@@ -1,0 +1,13 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: install splunkforwarder
+      yum:
+        name: splunkforwarder-8.0.0-1357bef0a7f6.x86_64
+        state: absent
+
+    - name: remove splunkforwarder directory
+      file:
+        path: /opt/splunkforwarder
+        state: absent

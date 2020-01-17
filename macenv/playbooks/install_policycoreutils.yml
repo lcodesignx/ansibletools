@@ -1,0 +1,8 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: install policycoreutils python tools
+      yum:
+        name: policycoreutils-python
+        state: present

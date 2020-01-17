@@ -1,0 +1,28 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: install python tools RedHat
+      yum:
+        name:
+          - MySQL-python
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Download MySQL Repository
+      get_url:
+        url: http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm
+        dest: /tmp
+      when: ansible_os_family == "RedHat"
+
+    - name: Enable MySQL Repository
+      yum:
+        name: /tmp/mysql-community-release-el7-5.noarch.rpm
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: install mysql-server RedHat
+      yum: name=mysql state=present
+      when: ansible_os_family == "RedHat"
+
+

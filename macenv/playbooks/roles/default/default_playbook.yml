@@ -1,0 +1,5 @@
+---
+- hosts: all
+  become: true
+  roles:
+  - role: "/Users/lupera1/ansible/macenv/playbooks/default"

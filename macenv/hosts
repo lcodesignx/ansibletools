@@ -1,0 +1,17 @@
+[servs]
+websrv
+
+[ws]
+lxdev
+
+[centos7]
+c7vm1
+c7vm2
+
+[centos8]
+c8vm1
+c8vm2
+
+[all:vars]
+ansible_user=lcox
+#ansible_python_interpreter=/usr/bin/python3

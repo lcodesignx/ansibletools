@@ -1,0 +1,28 @@
+# Lesson 3 Lab
+
+1. Create a playbook that will install httpd in the managed
+   server, using the following requirements
+
+2. Install the httpd package
+
+3. Enable the httpd service and make sure it is started
+
+4. Create a file /var/www/html/index.html, containing the text
+   "Welcome to my web server"
+
+5. Use the firewalld module to open the appropriate ports in
+   the firewall
+
+# Extra credit
+
+6. Create a playbook that will disable the NetworkManager service
+   on one random node
+
+7. Modify the /etc/default/grub file and add the parameters
+   net.ifnames=0 and biosdevname=0 to the line that loads the Linux
+   kernel. Next copy the new file to all managed hosts
+
+8. On all hosts, run grub2-mkconfig to write the modified
+   /etc/default/grub file
+
+# Tip! Use the lineinfile module to edit the configuration file

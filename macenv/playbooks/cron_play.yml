@@ -1,0 +1,10 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: run yum update every day at midnight
+      cron:
+        name: "system update"
+        minute: "0"
+        hour: "0"
+        job: "yum update -y"

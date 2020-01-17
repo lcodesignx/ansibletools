@@ -1,0 +1,16 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - debug: var=ansible_distribution
+    - debug: var=ansible_distribution_major_version
+    - debug: var=ansible_distribution_version
+    - debug: var=ansible_default_ipv4.address
+    - debug: var=ansible_processor[2]
+    - debug: var=ansible_processor_cores
+    - debug: var=ansible_processor_count
+    - debug: var=ansible_processor_threads_per_core
+    - debug: var=ansible_product_name
+    - debug: var=ansible_system_vendor
+    - debug: var=ansible_product_serial
+    - debug: var=ansible_memtotal_mb

@@ -1,0 +1,26 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: allow mysql to listen on port 4567 tcp
+      seport:
+        ports: 
+          - 4567
+          - 4568
+          - 4444
+        proto: tcp
+        setype: mysqld_port_t
+        state: present
+
+    - name: allow mysql to listen on port 4567 udp
+      seport:
+        ports: 4567
+        proto: udp
+        setype: mysqld_port_t
+        state: present
+
+    - name: set selinux to permissive for mysql
+      command: "semanage permissive -a mysqld_t"
+
+    - name: stop mariadb to bootstrap the database cluster
+      service: name=mariadb state=stopped

@@ -1,0 +1,26 @@
+---
+- name: "Test Netbox Modules"
+  hosts: all
+  become: true
+
+  tasks:  
+    - name: create device within netbox with only required information
+      netbox_device:
+        netbox_url: http://10.1.10.27:8085
+        netbox_token: 426f7d45e55fc782c23b8bff35d8dbf2167bfbb1
+        data:
+          site: Main
+          name: "{{ ansible_nodename }}"
+          device_type: "{{ ansible_product_name }}"
+          device_role: Server
+          platform: "Linux"
+          custom_fields:
+            ansibleDistribution: "{{ ansible_distribution }}"
+            ansibleDistributionMajorVersion: "{{ ansible_distribution_major_version }}"
+            ansibleDistributionVersion: "{{ ansible_distribution_version }}"
+            cpuModel: "{{ ansible_processor[2] }}"
+            sockets: "{{ ansible_processor_cores }}"
+            cores: "{{ ansible_processor_count }}"
+            hyperthreading: "{{ ansible_processor_threads_per_core }}"
+            ipv4: "{{ ansible_default_ipv4.address }}"
+        state: present

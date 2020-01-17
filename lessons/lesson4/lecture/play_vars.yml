@@ -1,0 +1,10 @@
+---
+- hosts: all
+  become: true
+  vars_files:
+    - vars/common_packages.yml
+  tasks:
+    - name: install common packages
+      yum:
+        name: "{{ packages }}"
+        state: present

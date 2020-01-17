@@ -1,0 +1,6 @@
+[control]
+demo1 ansible_connection=local
+
+[hosts]
+demo2
+demo3

@@ -1,0 +1,8 @@
+---
+- hosts: all
+  become: true
+  tasks:
+        - name: modify sudoers file
+          lineinfile:
+                path: /etc/sudoers
+                line: lcox     ALL=(ALL)       NOPASSWD:ALL

@@ -1,0 +1,5 @@
+---
+- hosts: ubuntu_lb
+  become: true
+  roles:
+    - nginx

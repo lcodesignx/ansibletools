@@ -1,0 +1,7 @@
+---
+- hosts: ubuntu_web
+  become: true
+  roles:
+    - apache2
+    - demo_app
+    

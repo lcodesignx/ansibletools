@@ -1,0 +1,65 @@
+---
+- name: Install Pynetbox dependencies in RHEL7
+  yum:
+    name: ['python-pip', 'python-requests']
+    state: installed
+  tags:
+    - pynetbox_deps7
+    - pynetbox_install7
+  when:
+    - ansible_distribution_major_version == '7'
+
+- name: install pynetbox
+  shell: 'python -m pip install pynetbox'
+  tags:
+    - pynetbox_install7
+  when:
+    - ansible_distribution_major_version == '7'
+
+- name: register cpu count
+  shell: "lscpu | awk -F: '/^Socket.s.:/ {print NF}'"
+  register: sockets
+
+- name: register core count
+  shell: "lscpu | awk -F: '/^Core.s./ {cores=$NF} /^Socket.s.:/ {sockets=$NF} END {print cores * sockets }'"
+  register: cores
+
+- name: register hyperthreading bool
+  shell: lscpu | awk -F':' '/^Thread.s. per core/ {ht=$NF} END {print ht -1}'
+  register: hyperthreading
+
+- name: register cpumodel
+  shell: lscpu | awk -F':' '/Model.name./ {gsub(/ /,"",$2); print $2'
+  register: cpumodel
+
+- name: gather harddrive info
+  shell: lsblk -o name, mountpoint, vendor, model, serial
+  register: disks
+  ignore_errors: yes
+
+- name: update or create netbox device
+  netbox_device:
+    netbox_url:
+    netbox_token:
+    data:
+      asset_tag:
+      comments:
+      custom_fields:
+        ansibleDistribution:
+        ansibleDistributionMajorVersion:
+        ansibleDistributionVersion:
+        has_nvidia:
+        nvidiasmi:
+        sockets:
+        cores:
+        hyperthreading:
+        cpumodel:
+        enteredNetbox:
+        purchasedDate:
+        warrantyExpires:
+      device_type:
+      name:
+      status:
+    state: present
+  when:
+    - ansible_virtualization_role != 'guest'

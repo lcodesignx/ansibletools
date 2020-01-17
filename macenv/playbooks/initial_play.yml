@@ -1,0 +1,37 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: modify sudoers file
+      lineinfile:
+        path: /etc/sudoers
+        line: lcox     ALL=(ALL)       NOPASSWD:ALL
+        
+
+    - name: install dependency packages
+      yum:
+        name:
+          - epel-release
+          - vim
+        state: present
+      tags:
+        - python-tools
+    
+    - name: install policy core utils
+      yum:
+        name:
+          - policycoreutils-python
+        state: present
+      when: ansible_distribution_major_version == "7"
+
+    - name: install policy core utils centos 8
+      yum:
+        name:
+          - policycoreutils-python-utils
+        state: present
+      when: ansible_distribution_major_version == "8" 
+   
+    - name: yum update
+      yum:
+        name: "*"
+        state: latest

@@ -1,0 +1,37 @@
+- name: Download MySQL Repository
+  get_url:
+    url: http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm
+    dest: /tmp
+  when: ansible_os_family == "RedHat"
+
+- name: Enable MySQL Repository
+  yum:
+    name: /tmp/mysql-community-release-el7-5.noarch.rpm
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: install mysql-server RedHat
+  yum: name=mysql-server state=present
+  when: ansible_os_family == "RedHat"
+
+- name: ensure mysql allows for remote connections RedHat
+  lineinfile:
+    path: /etc/my.cnf
+    insertafter: "\\[mysqld\\]"
+    line: "bind-address = 0.0.0.0"
+  notify: restart mysqld
+  when: ansible_os_family == "RedHat"
+
+- name: open mysql port on firewalld
+  firewalld:
+    port: 3306/tcp
+    state: enabled
+    permanent: yes
+    immediate: yes
+  when: ansible_os_family == "RedHat"
+
+- name: ensure mysql started RedHat
+  service: name=mysqld state=started enabled=yes
+  when: ansible_os_family == "RedHat"
+
+

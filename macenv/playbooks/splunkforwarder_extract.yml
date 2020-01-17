@@ -1,0 +1,39 @@
+---
+- hosts: all
+  become: true
+  tasks:
+
+    - name: extract splunk forwarder
+      unarchive:
+        src: /Users/lupera1/Box/archives/splunkforwarder-8.0.0-1357bef0a7f6-Linux-x86_64.tgz
+        dest: /opt
+
+    - name: create admin credentials with user-seed.conf
+      copy:
+        src: ../archive/user-seed.conf
+        dest: /opt/splunkforwarder/etc/system/local
+
+    - name: ensure splunkforwarder service starts at boot time
+      command: "/opt/splunkforwarder/bin/splunk enable boot-start --accept-license"
+      tags:
+        - bootstart
+
+    - name: add splunk forwarder
+      command: "/opt/splunkforwarder/bin/splunk add forward-server 10.1.10.41:9997"
+      tags:
+        - forwardserver
+
+    - name: add monitor for syslogs
+      command: "/opt/splunkforwarder/bin/splunk add monitor /var/log/messages -index lco_syslogs"
+      tags:
+        - syslogs
+
+    - name: add monitor for auditlogs
+      command: "/opt/splunkforwarder/bin/splunk add monitor /var/log/audit -index lco_auditlogs"
+      tags:
+        - auditlogs
+
+    - name: start splunkforwarder
+      command: "/opt/splunkforwarder/bin/splunk start"
+      tags:
+        - startforwarder

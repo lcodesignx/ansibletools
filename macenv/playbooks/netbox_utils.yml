@@ -1,0 +1,8 @@
+---
+- hosts: all
+  become: true
+  tasks:  
+    - name: install modules needed for netbox
+      pip:
+        name: pynetbox
+        executable: /usr/local/bin/pip3
