@@ -1,0 +1,24 @@
+---
+- hosts: demo4
+  become: true
+  tasks:
+    - name: open slurm required firewall ports 6817-6818/tcp
+      firewalld:
+        port: 6817-6818/tcp
+        permanent: yes
+        state: enabled
+        immediate: yes
+
+    - name: open slurm required firewall ports 7321/tcp
+      firewalld:
+        port: 7321/tcp
+        permanent: yes
+        state: enabled
+        immediate: yes
+
+    - name: open slurm required firewall ports 7321/udp
+      firewalld:
+        port: 7321/udp
+        permanent: yes
+        state: enabled
+        immediate: yes

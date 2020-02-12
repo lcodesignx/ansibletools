@@ -1,0 +1,28 @@
+---
+# tasks file for rh-mariadb
+
+- name: install rh-mariadb v10.3
+  yum:
+    name: rh-mariadb103-mariadb-server
+    state: present
+
+- name: ensure mariadb is enabled and started
+  service:
+    name: rh-mariadb103-mariadb
+    enabled: yes
+    state: started
+
+- name: open required firewall ports
+  firewalld:
+    port: 3306/tcp
+    permanent: yes
+    state: enabled
+    immediate: yes
+
+- name: create symlink for mysql
+  file:
+    src: /opt/rh/rh-mariadb103/root/bin/mysql
+    dest: /bin/mysql
+    owner: root
+    group: root
+    state: link
