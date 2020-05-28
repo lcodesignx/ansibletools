@@ -1,0 +1,8 @@
+---
+- hosts: cluster
+  become: true
+  tasks:
+    - name: install cluster packages "{{ packages }}"
+      yum:
+        name: "{{ packages }}"
+        state: present

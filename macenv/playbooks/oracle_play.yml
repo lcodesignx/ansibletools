@@ -1,0 +1,5 @@
+---
+- hosts: demo1
+  become: true
+  roles:
+    - oracle-12c

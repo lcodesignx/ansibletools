@@ -22,10 +22,29 @@ c8vm4
 [centos:children]
 centos8
 
+<<<<<<< HEAD
 [lco:children]
 centos8
 servs
+=======
+[cluster]
+demo4
+demo5
+demo6
+
+[lco:children]
+servs
+ws
+centos7
+centos8
+
+[apl:children]
+demos
+cluster
+>>>>>>> f3bfa688239ad9dc406976e1114908f3478cfeaa
 
 [lco:vars]
 ansible_user=lcox
-#ansible_python_interpreter=/usr/bin/python3
+
+[apl:vars]
+ansible_user=lupera1

@@ -1,0 +1,6 @@
+---
+packages:
+  - vim
+  - net-tools
+  - "@development tools"
+  - tmux

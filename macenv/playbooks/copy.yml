@@ -1,0 +1,8 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: copy oh my zsh theme
+      copy:
+        src: /home/lupera1/robbyrussell.zsh-theme
+        dest: /home/lupera1/.oh-my-zsh/themes/robbyrussell.zsh-theme  
