@@ -1,0 +1,25 @@
+---
+- name: install autofs package
+  yum:
+    name: autofs
+    state: latest
+
+- name: ensure autofs is started and enabled
+  service:
+    name: autofs
+    state: started
+    enabled: yes
+
+- name: configure auto.master
+  lineinfile:
+    path: /etc/auto.master
+    insertafter: '^/misc'
+    line: '/fs    /etc/auto.fs'
+  notify: restart autofs
+
+- name: copy auto.fs file
+  copy:
+    src: auto.fs
+    dest: /etc/
+
+
