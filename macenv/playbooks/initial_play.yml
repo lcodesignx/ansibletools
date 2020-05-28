@@ -6,7 +6,8 @@
       lineinfile:
         path: /etc/sudoers
         line: lcox     ALL=(ALL)       NOPASSWD:ALL
-        
+      tags:
+        - access
 
     - name: install dependency packages
       yum:

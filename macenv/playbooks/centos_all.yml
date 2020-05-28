@@ -1,0 +1,8 @@
+---
+- hosts: centos8
+  become: true
+  tasks:
+    - name: install zeek prerequisites {{ packages }}
+      yum:
+        name: "{{ packages }}"
+        state: present

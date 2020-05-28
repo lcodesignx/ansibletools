@@ -1,25 +1,31 @@
+[demos]
+soft1
+soft2
+soft3
+soft4
+
+[apl:children]
+demos
+
+[apl:vars]
+ansible_user=lupera1
+
 [servs]
 websrv
-
-[ws]
-lxdev
-
-[centos7]
-c7vm1
-c7vm2
 
 [centos8]
 c8vm1
 c8vm2
+c8vm3
+c8vm4
 
-[demos]
-demo1
-demo2
-demo3
+[centos:children]
+centos8
 
-[demos:vars]
-ansible_user=lupera1
+[lco:children]
+centos8
+servs
 
-[all:vars]
+[lco:vars]
 ansible_user=lcox
 #ansible_python_interpreter=/usr/bin/python3

@@ -1,0 +1,16 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: replace hostname on kickstart file
+      replace:
+        path: /usr/share/nginx/html/ks.txt
+        regexp: 'demo'
+        replace: 'demotest'
+      notify: restart nginx
+
+  handlers:
+    - name: restart nginx
+      service:
+        name: nginx
+        state: restarted

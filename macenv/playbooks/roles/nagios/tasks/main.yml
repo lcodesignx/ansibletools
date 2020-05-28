@@ -1,0 +1,121 @@
+---
+- name: install nagios server dependencies
+  yum:
+    name:
+        - gcc
+        - glibc
+        - httpd
+        - php
+        - php-cli
+        - glibc-common
+        - gd
+        - gd-devel
+        - net-snmp
+        - openssl-devel
+        - wget
+        - make
+        - gettext
+        - autoconf
+        - net-snmp-utils
+        - epel-release
+        - perl-Net-SNMP
+        - postfix
+        - unzip
+        - automake
+        - python-passlib
+    state: present
+
+- name: download nagios
+  get_url:
+    url: https://github.com/NagiosEnterprises/nagioscore/archive/nagios-4.4.2.tar.gz
+    dest: /tmp
+
+- name: extract nagios files
+  unarchive:
+    src: /tmp/nagioscore-nagios-4.4.2.tar.gz
+    dest: /usr/src
+    remote_src: yes
+
+- name: setup nagios configuration
+  command: /usr/src/nagioscore-nagios-4.4.2/configure
+
+- name: nagios compile
+  make:
+    chdir: /usr/src/nagioscore-nagios-4.4.2
+    target: all
+  become: yes
+
+- name: create nagios user and group
+  make:
+    chdir: /usr/src/nagioscore-nagios-4.4.2
+    target: install-groups-users
+  become: yes
+
+- name: add apache user to nagios group
+  user:
+    name: apache
+    groups: nagios
+    append: yes
+
+- name: install nagios binaries
+  make:
+    chdir: /usr/src/nagioscore-nagios-4.4.2
+    target: install
+  become: yes
+
+- name: create external command directory
+  make:
+    chdir: /usr/src/nagioscore-nagios-4.4.2
+    target: install-commandmode
+  become: yes
+
+- name: install nagios configuration files
+  make:
+    chdir: /usr/src/nagioscore-nagios-4.4.2
+    target: install-config
+  become: yes
+
+- name: install apache configuration files
+  make:
+    chdir: /usr/src/nagioscore-nagios-4.4.2
+    target: install-webconf
+  become: yes
+
+- name: create systemd unit file
+  make:
+    chdir: /usr/src/nagioscore-nagios-4.4.2
+    target: install-daemoninit
+  become: yes
+
+- name: create user account
+  htpasswd:
+    path: /usr/local/nagios/etc/htpasswd.users
+    name: nagiosadmin
+    password: 'pass'
+
+- name: configure HTTP firewall ports
+  firewalld:
+    service: http
+    permanent: yes
+    state: enabled
+    immediate: yes
+
+- name: configure HTTPS firewall ports
+  firewalld:
+    service: https
+    permanent: yes
+    state: enabled
+    immediate: yes
+
+- name: download nagios plugins
+  copy:
+    src: nagios-plugins.tar.gz
+    dest: /tmp
+
+- name: extract nagios plugins
+  unarchive:
+    src: /tmp/nagios-plugins.tar.gz
+    dest: /usr/src
+    remote_src: yes
+  tags:
+    - extract_nagios

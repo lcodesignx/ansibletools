@@ -1,0 +1,12 @@
+---
+- hosts: centos8
+  become: true
+  tasks:
+    - name: create user ansible
+      user:
+        name: ansible
+
+    - name: set sudoers file for ansible user
+      copy:
+        content: "ansible   ALL=(ALL)   NOPASSWD:ALL"
+        dest: /etc/sudoers.d/ansible

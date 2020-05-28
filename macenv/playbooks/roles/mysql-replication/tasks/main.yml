@@ -1,0 +1,64 @@
+---
+- name: enable mysql firewall rule
+  firewalld:
+    port: 3306/tcp
+    permanent: yes
+    state: enabled
+    immediate: yes
+  tags:
+    - firewall-rule
+
+- name: install rh-mysql80 on master and slave
+  yum: 
+    name: rh-mysql80-mysql-server
+    state: latest
+  tags:
+    - install-mysql
+
+- name: ensure mysql service is started and enabled
+  service:
+    name: rh-mysql80-mysqld
+    state: started
+    enabled: yes
+
+# Configure master server
+- name: set unique server id and enable binary logging for master server
+  lineinfile:
+    path: /etc/opt/rh/rh-mysql80/my.cnf
+    insertafter: 'mysqld'
+    line: "bind-address=*\nserver-id=1\nlog_bin=mysql-bin"
+  notify: restart mysql
+  tags:
+    - config-master
+
+# Configure slave server
+- name: set unique server id and enable binary logging for slave server
+  lineinfile:
+    path: /etc/opt/rh/rh-mysql80/my.cnf
+    insertafter: 'mysqld'
+    line: "bind-address=*\nserver-id=2\nlog_bin=mysql-bin"
+  notify: restart mysql
+  tags:
+    - config-slave
+
+- name: create database user with name 'replica' with replication privileges
+  mysql_user:
+    name: replica 
+    password: pass
+    host: '%'
+    priv: '*.*:replication slave'
+    state: present
+  tags:
+    - mysql-rep
+
+- name: set up a dbadmin account for management
+  mysql_user:
+    name: dbadmin 
+    password: pass
+    host: '%'
+    priv: '*.*:ALL,GRANT'
+    state: present
+  tags:
+    - mysql-admin
+
+

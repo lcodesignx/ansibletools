@@ -6,8 +6,6 @@
     name:
       - python-psycopg2
     state: present
-  tags:
-    - deps
 
 - name: install postgresql repository
   yum: 
@@ -26,22 +24,18 @@
   command: "/usr/pgsql-9.6/bin/postgresql96-setup initdb"
   tags: ['initdb']
 
-- name: copy pg_hba.conf file
-  copy:
-    src: pg_hba.conf
-    dest: /var/lib/pgsql/9.6/data/
-    owner: postgres
-    group: postgres
-    mode: '0600'
-  notify: restart postgresql  
+- name: replace ident for trust
+  replace:
+    path: /var/lib/pgsql/9.6/data/pg_hba.conf  
+    regexp: 'ident'
+    replace: 'trust'
+  notify: restart postgresql
 
-- name: copy postgresql.conf file
-  copy:
-    src: postgresql.conf
-    dest: /var/lib/pgsql/9.6/data/
-    owner: postgres
-    group: postgres
-    mode: '0600'
+- name: replace peer for trust
+  replace:
+    path: /var/lib/pgsql/9.6/data/pg_hba.conf  
+    regexp: 'peer'
+    replace: 'trust'
   notify: restart postgresql
 
 - name: open postgresql firewall port

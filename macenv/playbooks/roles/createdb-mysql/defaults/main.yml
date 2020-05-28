@@ -1,2 +1,7 @@
 ---
 # defaults file for createdb-mysql
+
+db_name: demo
+db_user: dbadmin
+db_pass: dbpass
+db_host: 10.1.10.100

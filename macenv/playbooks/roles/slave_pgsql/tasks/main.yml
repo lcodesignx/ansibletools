@@ -17,7 +17,7 @@
     mode: 0700
 
 - name: perform backup from primary db server
-  command: pg_basebackup -U repuser -h 10.1.10.35 -w -D /var/lib/pgsql/9.6/data
+  command: pg_basebackup -U repuser -h 10.1.10.44 -w -D /var/lib/pgsql/9.6/data
 
 - name: set file ownership, group and permissions to postgres
   file:

@@ -1,0 +1,5 @@
+---
+master_ip: 10.1.10.44
+slave_ip: 10.1.10.48
+db_user: 'replica'
+db_pass: 'pass'

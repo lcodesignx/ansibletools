@@ -1,8 +1,12 @@
 ---
 packages:
+  - python2-PyMySQL
+  - python36-PyMySQL
+  - yum-utils
+#  - dnf-utils
   - vim
-  - net-tools
-  - "@development tools"
+#  - net-tools
+#  - "@development tools"
   - wget
-  - screen
-  - zsh
+#  - screen
+#  - bzip2

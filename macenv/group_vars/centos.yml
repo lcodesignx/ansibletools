@@ -1,0 +1,15 @@
+---
+packages:
+    - cmake
+    - make
+    - gcc
+    - gcc-c++
+    - flex
+    - bison
+    - libpcap
+    - openssl-devel
+    - platform-python-devel
+    - swig
+    - zlib-devel
+    - cmake3
+    - "@Development Tools"

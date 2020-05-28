@@ -3,16 +3,22 @@
     url: http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm
     dest: /tmp
   when: ansible_os_family == "RedHat"
+  tags:
+    - mysql-install
 
 - name: Enable MySQL Repository
   yum:
     name: /tmp/mysql-community-release-el7-5.noarch.rpm
     state: present
   when: ansible_os_family == "RedHat"
+  tags:
+    - mysql-install
 
 - name: install mysql-server RedHat
   yum: name=mysql-server state=present
   when: ansible_os_family == "RedHat"
+  tags:
+    - mysql-install
 
 - name: ensure mysql allows for remote connections RedHat
   lineinfile:

@@ -1,0 +1,10 @@
+---
+- hosts: soft2
+  gather_facts: false
+  become: true
+  tasks:
+    - name: test
+      become_user: postgres
+      postgresql_user:
+        name: "replica"
+        password: "pass"
