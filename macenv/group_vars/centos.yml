@@ -19,3 +19,6 @@ packages:
     - json-c-devel
     - json-glib-devel
     - http-parser
+    - bzip2
+    - zlib
+    - pkgconf-pkg-config
