@@ -1,15 +1,21 @@
 ---
 packages:
-    - cmake
-    - make
-    - gcc
-    - gcc-c++
-    - flex
-    - bison
-    - libpcap
-    - openssl-devel
-    - platform-python-devel
-    - swig
-    - zlib-devel
-    - cmake3
-    - "@Development Tools"
+    - wget
+    - curl
+    - hwloc-devel
+    - rdma-core-devel
+    - lua-devel
+    - munge-devel
+    - pam-devel
+    - readline-devel
+    - numactl-devel
+    - rrdtool-devel
+    - ncurses-devel
+    - gtk2-devel
+    - gtk3-devel
+   # - nvml-tools
+    - pmix
+    - libyaml-devel
+    - json-c-devel
+    - json-glib-devel
+    - http-parser
