@@ -1,5 +1,6 @@
 ---
 packages:
+    - "@Development Tools"
     - wget
     - curl
     - hwloc-devel
@@ -22,3 +23,4 @@ packages:
     - bzip2
     - zlib
     - pkgconf-pkg-config
+    - openssl-devel
