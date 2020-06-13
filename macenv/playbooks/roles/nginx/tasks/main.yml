@@ -1,8 +1,3 @@
-- name: install epel repository
-  yum:
-    name: epel-release
-    state: present
-
 - name: install nginx package
   yum:
     name: nginx
@@ -26,7 +21,8 @@
   copy:
     src: index.html
     dest: /usr/share/nginx/html/
-  tags: ['chg-ix']
+  tags: ['change-index']
+  notify: restart nginx
 
 - name: start and enable nginx
   service:
