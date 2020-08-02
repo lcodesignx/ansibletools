@@ -1,0 +1,7 @@
+---
+# handlers file for netbox
+- name: restart httpd
+  service: name=httpd state=restarted
+  
+- name: restart postgresql
+  service: name=postgresql state=restarted

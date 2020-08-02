@@ -1,0 +1,5 @@
+---
+- hosts: appsvc
+  become: true
+  roles:
+    - ../dhcp-role

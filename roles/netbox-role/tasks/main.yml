@@ -1,0 +1,187 @@
+---
+# Netbox configuration
+- name: install epel repository
+  yum: name=epel-release state=present
+
+- name: install endpoint repository
+  yum:
+    name: https://packages.endpoint.com/rhel/7/os/x86_64/endpoint-repo-1.7-1.x86_64.rpm
+    state: present
+  when:
+
+- name: update git to version 2
+  yum: name=git-all state=present
+
+- name: install dependency packages {{ pkgs }}
+  yum:
+    name: "{{ pkgs }}"
+    state: latest
+  tags: ['pkgs']
+
+- name: install rhel7 dependency packages {{ pkgs_rhel7 }}
+  yum: 
+    name: "{{ pkgs_rhel7 }}"
+    state: latest
+  when: ansible_distribution_major_version == "7"
+  tags: ['rhel7pkgs']
+
+- name: install rhel8 dependency packages {{ pkgs_rhel8 }}
+  yum:
+    name: "{{ pkgs_rhel8 }}"
+    state: latest
+  when: ansible_distribution_major_version == "8"
+  tags: ['rhel8pkgs']
+
+- name: install psycopg2 module
+  pip:
+    name: psycopg2-binary
+  tags: ['psycopg']
+
+- name: install apache2
+  yum: name=httpd state=present
+
+- name: ensure apache2 is started and enabled
+  service: name=httpd state=started enabled=yes
+
+- name: modify listen address
+  lineinfile:
+    path: /etc/httpd/conf/httpd.conf
+    regexp: '^Listen 80'
+    line: "Listen 10.1.10.21:80"
+  notify: restart httpd
+  tags: ['mod-httpd']
+
+- name: create NetBox database
+  become_user: postgres
+  postgresql_db:
+    login_user: postgres
+    name: "{{ netbox_db }}"
+  tags: ['db']
+
+- name: create NetBox database user
+  become_user: postgres
+  postgresql_user:
+    db: "{{ netbox_db }}"
+    name: "{{ netbox_user }}"
+    password: "{{ netbox_password }}"
+    priv: ALL
+  tags: ['db']
+
+- name: enable password login to PostgreSQL database
+  replace:
+    path: /var/lib/pgsql/data/pg_hba.conf
+    regexp: 'ident'
+    replace: 'trust'
+  tags:
+    - pgconfig
+
+- name: restart postgresql database
+  service:
+    name: postgresql
+    state: restarted
+
+- name: create netbox directory structure
+  file:
+    path: /opt/netbox
+    state: directory
+
+- name: clone the git repository
+  git:
+    repo: https://github.com/netbox-community/netbox.git
+    dest: /opt/netbox/
+
+- name: copy configuration example file
+  copy:
+    src: configuration.py
+    dest: /opt/netbox/netbox/netbox
+    owner: root
+    group: root
+    mode: '0644'
+  tags: ['webconfig']
+
+- name: install NetBox dependencies
+  pip:
+    requirements: /opt/netbox/requirements.txt
+
+- name: migrate database data
+  command: /usr/bin/python3 /opt/netbox/netbox/manage.py migrate
+  tags:
+    - migrate-dbs
+
+- name: move static files
+  command: /usr/bin/python3 /opt/netbox/netbox/manage.py collectstatic
+
+- name: install gunicorn
+  pip:
+    name: gunicorn
+  tags: ['webconfig']
+
+- name: copy gunicorn configuration file to netbox
+  copy:
+    src: gunicorn_config.py
+    dest: /opt/netbox
+    owner: root
+    group: root
+    mode: '0644'
+  tags: ['gunicornconfig']
+
+- name: create a supervisor configuration
+  copy:
+    dest: /etc/supervisord.d/netbox.ini
+    content: |
+        [program:netbox]
+        command = gunicorn -c /opt/netbox/gunicorn_config.py netbox.wsgi
+        directory = /opt/netbox/netbox/
+        user = apache
+  tags: ['webconfig']
+
+- name: start and enable supervisord
+  service: name=supervisord state=started enabled=yes
+  tags: ['webconfig']
+
+- name: create httpd virtualhosts for netbox
+  copy:
+    dest: /etc/httpd/conf.d/netbox.conf
+    content: |
+        Listen 8085
+            ProxyPreserveHost On
+            ServerName netbox
+            Alias /static /opt/netbox/netbox/static
+            <Directory /opt/netbox/netbox/static>
+                    Options Indexes FollowSymLinks MultiViews
+                    AllowOverride None
+                    Require all granted
+            </Directory>
+            <Location  /static>
+                    ProxyPass !
+            </Location>
+
+            ProxyPass / http://127.0.0.1:8001/
+            ProxyPassReverse / http://127.0.0.1:8001/
+  notify: restart httpd
+  tags: ['httpdconfig']
+
+- name: open port 80
+  firewalld:
+    port: 80/tcp
+    permanent: yes
+    state: enabled
+    immediate: yes
+  tags: ['webconfig']
+
+- name: open port 8085
+  firewalld:
+    port: 8085/tcp
+    permanent: yes
+    state: enabled
+    immediate: yes
+  tags: ['httpdconfig']
+
+- name: allow port 8085 binding to http
+  command: semanage port -a -t http_port_t -p tcp 8085
+
+- name: allow port 8001 binding to http
+  command: semanage port -a -t http_port_t -p tcp 8001
+
+- name: allow httpd to can network connect
+  command: setsebool -P httpd_can_network_connect 1

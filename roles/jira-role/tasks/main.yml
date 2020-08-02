@@ -1,0 +1,60 @@
+- name: install java jdk
+  yum:
+    name: java-11-openjdk-devel.x86_64
+    state: latest
+  tags: ['java']
+
+- name: enable jira firewall rules
+  firewalld:
+    port: 8080/tcp
+    permanent: yes
+    state: enabled
+    immediate: yes
+  tags: ['jira','firewall']
+
+- name: create atlassian install directory
+  file:
+    path: /opt/atlassian
+    state: directory
+    mode: '0755'
+    recurse: yes
+
+- name: create jira home directory
+  file:
+    path: /opt/atlassian/jira-home
+    state: directory
+    mode: '0755'
+
+- name: extract atlassian-jira.tar.gz into /opt/atlassian/jira
+  unarchive:
+    src: "{{ atlassian_jira_path }}"
+    dest: /opt/atlassian
+    remote_src: yes
+  tags: ['extract']
+
+- name: set jira home
+  lineinfile:
+    path: /opt/atlassian/atlassian-jira-software-8.5.5-standalone/atlassian-jira/WEB-INF/classes/jira-application.properties
+    regexp: '^jira.home ='
+    line: 'jira.home = /opt/atlassian/jira-home'
+  tags: ['jirahome']
+
+- name: set JRE_HOME
+  lineinfile:
+    path: /etc/bashrc
+    line: 'export JRE_HOME=/fs/software/jre1.8.0_251'
+
+- name: create jira systemd service
+  copy:
+    src: jira.service
+    dest: /etc/systemd/system/jira.service
+    mode: '0664'
+
+- name: reload daemon
+  command: systemctl daemon-reload
+
+- name: start and enable jira service
+  service: 
+    name: jira
+    state: started
+    enabled: yes

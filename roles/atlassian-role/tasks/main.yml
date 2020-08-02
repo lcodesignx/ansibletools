@@ -1,0 +1,64 @@
+- name: create bitbucket user
+  postgresql_user:
+    name: "{{ bitbucketuser }}"
+    password: "{{ db_pass }}"
+    conn_limit: -1
+    expires: infinity
+  tags: ['bitbucket','dbuser']
+
+- name: create bitbucket database
+  postgresql_db:
+    name: "{{ bitbucketdb }}"
+    encoding: UTF-8
+    owner: "{{ bitbucketuser }}"
+    conn_limit: -1
+  tags: ['bitbucket', 'db']
+
+- name: create jira user
+  postgresql_user:
+    name: "{{ jirauser }}"
+    password: "{{ db_pass }}"
+    conn_limit: '-1'
+    expires: infinity
+  tags: ['jira','dbuser']
+
+- name: create jira database
+  postgresql_db:
+    name: "{{ jiradb }}"
+    encoding: UTF-8
+    owner: "{{ jirauser }}"
+    conn_limit: '-1'
+  tags: ['jira','db']
+
+- name: create confluence user
+  postgresql_user:
+    name: "{{ confluenceuser }}"
+    password: "{{ db_pass }}"
+    conn_limit: '-1'
+    expires: infinity
+  tags: ['confluence','dbuser']
+
+- name: create confluence database
+  postgresql_db:
+    name: "{{ confluencedb }}"
+    encoding: UTF-8
+    owner: "{{ confluenceuser }}"
+    conn_limit: '-1'
+  tags: ['confluence','db']
+
+- name: create bamboo database user 
+  postgresql_user:
+    name: "{{ bamboouser }}"
+    password: "{{ db_pass }}"
+    conn_limit: '-1'
+    expires: infinity
+  tags: ['bamboo', 'dbuser']
+
+- name: create bamboo database 
+  postgresql_db:
+    name: "{{ bamboodb }}"
+    encoding: UTF-8
+    owner: "{{ bamboouser }}"
+    conn_limit: '-1'
+  tags: ['bamboo', 'db']
+   

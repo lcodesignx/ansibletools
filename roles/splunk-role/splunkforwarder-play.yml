@@ -1,0 +1,6 @@
+---
+- hosts: vms
+  become: true
+  gather_facts: false
+  roles:
+    - splunkforwarder

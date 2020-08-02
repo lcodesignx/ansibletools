@@ -1,0 +1,8 @@
+bitbucketdb: bitbucket
+bitbucketuser: bitbucketuser
+jiradb: jira
+jirauser: jirauser
+confluencedb: confluence
+confluenceuser: confluenceuser
+bamboodb: bamboo
+bamboouser: bamboouser

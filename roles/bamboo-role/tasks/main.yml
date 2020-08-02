@@ -1,0 +1,57 @@
+- name: install java jdk
+  yum:
+    name: java-11-openjdk-devel.x86_64
+    state: latest
+  tags: ['java']
+
+- name: enable bamboo firewall rules
+  firewalld:
+    port: 8085/tcp
+    permanent: yes
+    state: enabled
+    immediate: yes
+  tags: ['firewall']
+
+- name: create the atlassian installation directory
+  file:
+      path: /opt/atlassian
+      state: directory
+      mode: '0755'
+      recurse: yes
+  tags: ['installdir']
+
+- name: create bamboo home directory
+  file:
+      path: /opt/altassian/bamboo-home
+      state: directory
+      mode: '0755'
+  tags: ['homedir']
+
+- name: extract atlassian-bamboo.tar.gz into installation directory
+  unarchive:
+      src: "{{ atlassian_bamboo_path }}"
+      dest: /opt/atlassian
+      remote_src: yes
+  tags: ['extract']
+
+- name: set bamboo home
+  lineinfile:
+    path: /opt/atlassian/atlassian-bamboo-7.0.4/atlassian-bamboo/WEB-INF/classes/bamboo-init.properties
+    regexp: '^bamboo.home='
+    line: 'bamboo.home=/opt/atlassian/bamboo-home'
+  tags: ['bamboohome']
+
+- name: create bamboo systemd service
+  copy:
+    src: bamboo.service
+    dest: /etc/systemd/system/bamboo.service
+    mode: '0664'
+
+- name: reload daemon
+  command: systemctl daemon-reload
+
+- name: start and enable bamboo service
+  service:
+    name: bamboo
+    state: started
+    enabled: yes

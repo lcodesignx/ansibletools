@@ -1,0 +1,12 @@
+[Unit]
+Description=Jira
+After=network.target
+
+[Service]
+Type=forking
+PIDFile=/opt/atlassian/atlassian-jira-software-8.5.5-standalone/work/catalina.pid
+ExecStart=/opt/atlassian/atlassian-jira-software-8.5.5-standalone/bin/start-jira.sh
+ExecStop=/opt/atlassian/atlassian-jira-software-8.5.5-standalone/bin/stop-jira.sh
+
+[Install]
+WantedBy=multi-user.target

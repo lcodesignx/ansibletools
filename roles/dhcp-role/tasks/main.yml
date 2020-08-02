@@ -1,0 +1,33 @@
+---
+- name: resynchronize system packages to their lastest versions
+  yum:
+    name: '*'
+    state: latest
+  tags: ['update']
+
+- name: install dhcp-server package
+  yum:
+    name: dhcp-server
+    state: latest
+  tags: ['dhcp-install']
+
+- name: copy dhcpd configuration file
+  copy:
+    src: dhcpd.conf
+    dest: /etc/dhcp/dhcpd.conf
+  tags: ['config-file']
+
+- name: ensure service is started and enabled
+  service:
+    name: dhcpd
+    state: started
+    enabled: yes
+  tags: ['service']
+
+- name: enabled firewall rules
+  firewalld:
+    port: 67/udp
+    permanent: yes
+    state: enabled
+    immediate: yes
+  tags: ['firewall']

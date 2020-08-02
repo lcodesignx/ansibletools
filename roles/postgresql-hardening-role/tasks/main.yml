@@ -1,0 +1,225 @@
+- name: change postgres user umask to 022
+  lineinfile:
+    path: /var/lib/pgsql/.bash_profile
+    line: umask 077
+  tags: ['umask']
+
+- name: create pg_wheel group
+  group:
+    name: pg_wheel
+    state: present
+  tags: ['group']
+
+- name: add postgres user to pg_wheel group
+  user:
+    name: postgres
+    groups: pg_wheel
+    append: yes
+  tags: ['addusertogroup']
+  
+- name: determine existing users
+  shell: 'grep pg_wheel /etc/group | cut -d":" -f4 | tr "," "\n"'
+  changed_when: false
+  register: existing_users
+  tags: ['removeusers']
+
+- name: determine removed users
+  set_fact:
+    removed_users: "{{ existing_users.stdout_lines | difference(allowed_users) }}"
+  tags: ['removeusers']
+
+- name: force remove
+  command: gpasswd -d {{ item }} "pg_wheel"
+  with_items: "{{ removed_users }}"
+  tags: ['removeusers']
+
+- name: set logging to csvlog
+  become_user: postgres
+  postgresql_set:
+    name: log_destination
+    value: "{{ log_destination }}"
+  tags: ['logging']
+
+- name: set logging collector on
+  become_user: postgres
+  postgresql_set:
+    name: logging_collector
+    value: 'on'
+  notify: restart postgresql
+  tags: ['logging']
+
+- name: set log directory
+  become_user: postgres
+  postgresql_set:
+    name: log_directory
+    value: "{{ log_directory }}"
+  tags: ['logging']
+
+- name: set log filename
+  become_user: postgres
+  postgresql_set:
+    name: log_filename
+    value: 'postgresql-%Y%m%d.log'
+  tags: ['logfilename']
+  
+- name: set log permissions to 0600
+  become_user: postgres
+  postgresql_set:
+    name: log_file_mode
+    value: '0600'
+  tags: ['logpermissions']
+
+- name: set log truncate rotation to on
+  become_user: postgres
+  postgresql_set:
+    name: log_truncate_on_rotation
+    value: 'on'
+  tags: ['logtruncaterotation']
+
+- name: set log rotation to 1 day
+  become_user: postgres
+  postgresql_set:
+      name: log_rotation_age
+      value: '1d'
+  tags: ['logtruncaterotation']
+
+- name: set log rotation size to 1GB
+  become_user: postgres
+  postgresql_set:
+    name: log_rotation_size
+    value: '1GB'
+  tags: ['logtruncaterotation']
+
+- name: set syslog facility to local 1
+  become_user: postgres
+  postgresql_set:
+    name: syslog_facility
+    value: 'LOCAL1'
+  tags: ['syslogfacility']
+
+- name: ensure the program name for PostgreSQL syslog messages is correct
+  become_user: postgres
+  postgresql_set:
+    name: syslog_ident
+    value: pg10
+  tags: ['syslogident']
+
+- name: Ensure the correct messages are written to the server log
+  become_user: postgres
+  postgresql_set:
+    name: log_min_messages
+    value: warning
+  tags: ['syslogmessages']
+
+- name: Ensure the correct SQL statements generating errors are recorded
+  become_user: postgres
+  postgresql_set:
+    name: log_min_error_statement
+    value: error
+  tags: ['syslogerror']
+
+- name: Ensure debug_print_parse is disabled
+  become_user: postgres
+  postgresql_set:
+    name: debug_print_parse
+    value: 'off'
+  tags: ['debug']
+
+- name: Ensure debug_print_rewritten is disabled
+  become_user: postgres
+  postgresql_set:
+    name: debug_print_rewritten
+    value: 'off'
+  tags: ['debug']
+
+- name: Ensure debug_print_plan is disabled
+  become_user: postgres
+  postgresql_set:
+    name: debug_print_plan
+    value: 'off'
+  tags: ['debug']
+
+- name: Ensure debug_pretty_print is enabled
+  become_user: postgres
+  postgresql_set:
+    name: debug_pretty_print
+    value: 'on'
+  tags: ['debug']
+
+- name: Ensure log_connections is enabled
+  become_user: postgres
+  postgresql_set:
+    name: log_connections
+    value: 'on'
+  tags: ['logconn']
+
+- name: Ensure log_disconnections is enabled
+  become_user: postgres
+  postgresql_set:
+    name: log_disconnections
+    value: 'on'
+  tags: ['logconn']
+
+- name: Ensure log_verbosity is set correctly
+  become_user: postgres
+  postgresql_set:
+    name: log_error_verbosity
+    value: verbose
+  tags: ['logconn']
+
+- name: Ensure log_hostname is set correctly (disabled)
+  become_user: postgres
+  postgresql_set:
+    name: log_hostname
+    value: 'off'
+  tags: ['logconn']
+
+- name: Ensure log_line_prefix is set correctly
+  become_user: postgres
+  postgresql_set:
+    name: log_line_prefix
+    value: '%m [%p]: [%1-1]'
+  tags: ['logprefix']
+
+
+- name: ensure log_statement is set correctly
+  become_user: postgres
+  postgresql_set:
+    name: log_statement
+    value: 'ddl'
+  tags: ['logstatement']
+
+- name: ensure log_timezone is set correctly
+  become_user: postgres
+  postgresql_set:
+    name: log_timezone
+    value: 'US/Eastern'
+  tags: ['logtimezone']
+
+- name: install pg extensions
+  yum:
+    name: "{{ extensions }}"
+    state: present
+  tags: ['pgextensions']
+
+- name: add pgaudit to shared preload libraries
+  lineinfile:
+    path: /var/lib/pgsql/data/postgresql.conf
+    regexp: '\#shared_preload_libraries = '
+    line: "shared_preload_libraries = 'pgaudit'"
+  notify: restart postgresql
+  tags: ['pgaudit']
+
+- name: set operations to log with pgaudit
+  become_user: postgres
+  postgresql_set:
+    name: pgaudit.log
+    value: 'ddl,write'
+  notify: restart postgresql
+  tags: ['pgaudit']
+
+- name: add pg_wheel group to sudoers file
+  lineinfile:
+    path: /etc/sudoers 
+    line: '%pg_wheel ALL=/bin/su - postgres'
+  tags: ['sudoers']

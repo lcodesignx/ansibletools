@@ -1,8 +1,0 @@
-[file]
-demo1
-
-[lamp]
-demo2
-
-[all:vars]
-ansible_user=lcox

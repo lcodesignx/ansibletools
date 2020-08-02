@@ -1,0 +1,5 @@
+---
+- hosts: labvm2
+  gather_facts: false
+  roles:
+    - ../jira-role

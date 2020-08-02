@@ -1,0 +1,10 @@
+- name: stop bitbucket service
+  service:
+    name: bitbucket
+    state: stopped
+  tags: ['svcstop']
+
+- name: make archive of bitbucket home directory
+  archive:
+    path: /var/atlassian/application-data/bitbucket 
+    dest: /fs/software/bitbucket-home.tgz

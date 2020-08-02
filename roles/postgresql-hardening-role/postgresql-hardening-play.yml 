@@ -1,0 +1,6 @@
+---
+- hosts: ab1-db-main,ab1-db-rep
+  gather_facts: false
+  become_user: postgres
+  roles:
+    - ../postgresql-hardening-role

@@ -1,0 +1,11 @@
+---
+- name: add admin user to sudoers file
+  copy:
+    dest: /etc/sudoers.d/lupera1
+    content: 'lupera1   ALL=(ALL)   NOPASSWD:ALL'
+
+- name: install base packages {{ packages }}
+  yum: 
+    name: "{{ packages }}"
+    state: latest
+  tags: ['software']

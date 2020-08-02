@@ -1,9 +1,0 @@
----
-packages:
-  - vim
-  - net-tools
-  - "@development tools"
-  - wget
-  - screen
-  - htop
-  - tmux

@@ -1,0 +1,15 @@
+[Unit]
+Description=Confluence
+After=network.target
+
+[Service]
+Type=forking
+PIDFile=/opt/atlassian/atlassian-confluence-7.4.1/work/catalina.pid
+ExecStart=/opt/atlassian/atlassian-confluence-7.4.1/bin/start-confluence.sh
+ExecStop=/opt/atlassian/atlassian-confluence-7.4.1/bin/stop-confluence.sh
+TimeoutSec=200
+LimitNOFILE=4096
+LimitNPROC=4096
+
+[Install]
+WantedBy=multi-user.target

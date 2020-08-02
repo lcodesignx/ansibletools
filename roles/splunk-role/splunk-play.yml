@@ -1,0 +1,5 @@
+---
+- hosts: appsvc
+  gather_facts: false
+  roles:
+    - splunk

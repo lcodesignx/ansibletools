@@ -1,0 +1,20 @@
+- name: create new space for repositories
+  file:
+      path: "{{ new_path }}"
+      state: directory
+      mode: '0755'
+
+- name: create directory for svn SM3IB repo
+  file:
+      path: "{{ new_path }}/SM3IB"
+      state: directory
+      mode: '0755'
+
+- name: copy old svn repo to new path
+  copy:
+      src: "{{ old_svn_path }}"
+      dest: "{{ new_path }}/SM3IB"
+      owner: root
+      mode: '0755'
+      remote_src: yes
+

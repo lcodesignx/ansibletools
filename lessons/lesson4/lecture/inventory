@@ -1,8 +1,0 @@
-[webservers]
-demo1
-
-[ftpservers]
-demo2
-
-[all:vars]
-ansible_user=lcox

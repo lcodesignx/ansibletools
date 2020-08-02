@@ -1,0 +1,49 @@
+- name: extract splunk tarball
+  unarchive:
+    src: "{{ splunk_installation_file_path }}"
+    dest: /opt
+  tags: ['extract']
+
+- name: change splunk root directory ownership to root
+  file:
+    path: /opt/splunk 
+    owner: root
+    group: root
+    mode: '0755'
+    recurse: yes
+  tags: ['perms']
+
+- name: create admin credentials with user-seed.conf
+  copy:
+    src: user-seed.conf
+    dest: /opt/splunk/etc/system/local
+    owner: root
+    group: root
+    mode: '0644'
+  tags: ['creds']
+
+- name: ensure splunk service starts at boot time
+  command: "/opt/splunk/bin/splunk enable boot-start --accept-license"
+  tags:
+    - bootstart
+
+- name: enable splunk firewall rules
+  firewalld:
+    port: 9997/tcp
+    permanent: yes
+    state: enabled
+    immediate: yes
+  tags: ['firewall']
+
+- name: enable splunk firewall rules
+  firewalld:
+    port: 8000/tcp
+    permanent: yes
+    state: enabled
+    immediate: yes
+  tags: ['firewall']
+
+- name: start splunk
+  command: "/opt/splunk/bin/splunk start"
+  tags:
+    - start

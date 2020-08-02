@@ -1,0 +1,73 @@
+---
+- name: install nfs-utils
+  yum:
+    name: nfs-utils
+    state: latest
+  tags: ['client']
+
+- name: ensure nfs server is started and enabled
+  service:
+    name: nfs-server
+    state: started
+    enabled: yes
+  tags: ['svc']
+
+- name: enable firewall rule for nfs
+  firewalld:
+    service: nfs
+    permanent: yes
+    state: enabled
+    immediate: yes
+  tags: ['svc']
+
+- name: enable firewall rule for mountd
+  firewalld:
+    service: mountd
+    permanent: yes
+    state: enabled
+    immediate: yes
+  tags: ['svc']
+
+- name: enable firewall rule for rpc-bind
+  firewalld:
+    service: rpc-bind
+    permanent: yes
+    state: enabled
+    immediate: yes
+  tags: ['svc']
+
+- name: create shared directory
+  file:
+    path: /share
+    state: directory
+    owner: lupera1
+    group: lupera1
+    mode: 0755
+  tags: ['svc']
+
+- name: install autofs package
+  yum:
+    name: autofs
+    state: latest
+  tags: ['client']
+
+- name: ensure autofs is started and enabled
+  service:
+    name: autofs
+    state: started
+    enabled: yes
+  tags: ['client']
+
+- name: configure auto.master
+  lineinfile:
+    path: /etc/auto.master
+    insertafter: '^/misc'
+    line: '/fs    /etc/auto.fs'
+  notify: restart autofs
+  tags: ['client']
+
+- name: copy auto.fs file
+  copy:
+    src: auto.fs
+    dest: /etc/
+  tags: ['client']

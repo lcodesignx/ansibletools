@@ -1,0 +1,26 @@
+---
+pkgs: 
+    - python2-pip
+    - libxml2-devel
+    - libxslt-devel
+    - libffi-devel
+    - graphviz
+    - openssl-devel
+    - redhat-rpm-config
+    - redis
+    - "@Development Tools"
+    - supervisor
+
+pkgs_rhel7:
+    - policycoreutils-python
+    - python-setuptools
+    - python-devel
+
+pkgs_rhel8:
+    - policycoreutils-python-utils-2.9-9.el8.noarch
+    - platform-python-setuptools
+    - platform-python-devel
+
+netbox_db: 'netbox'
+netbox_user: 'netbox'
+netbox_password: 'B33b0p@!'

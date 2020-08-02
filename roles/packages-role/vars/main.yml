@@ -1,0 +1,8 @@
+packages:
+    - gdisk
+    - gettext-devel
+    - perl-CPAN
+    - zlib-devel
+    - openssl-devel
+    - perl-devel
+    - wget

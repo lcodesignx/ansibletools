@@ -1,6 +1,0 @@
----
-packages:
-    - vim
-    - net-tools
-    - "@development tools"
-    - pythoncoreutils-python-utils

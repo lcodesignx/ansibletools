@@ -1,0 +1,8 @@
+- name: create device within NetBox with only required information
+  netbox_device:
+    netbox_url: http://10.1.10.3:8085
+    netbox_token: 75d9a2fb2a5ca6ff5095bebca70d1d69310a0159
+    data:
+        name: "{{ ansible_hostname }}"
+        site: datacenter
+    sate: present

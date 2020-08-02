@@ -1,0 +1,8 @@
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+
+10.1.10.40	c8vm1
+10.1.10.43	c8vm2
+10.1.10.44	c8vm3
+10.1.10.48	c8vm4

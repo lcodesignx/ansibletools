@@ -1,8 +1,0 @@
----
-- hosts: all
-  become: true
-  tasks:
-    - name: system update
-      yum:
-        name: "*"
-        state: latest

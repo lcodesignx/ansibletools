@@ -1,0 +1,4 @@
+- name: install packages {{ packages }}
+  yum:
+    name: "{{ packages }}"
+    state: latest

@@ -1,0 +1,5 @@
+---
+- hosts: soft2
+  gather_facts: false
+  roles:
+    - ../restore-bitbucket-role

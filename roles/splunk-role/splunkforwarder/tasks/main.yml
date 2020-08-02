@@ -1,0 +1,47 @@
+- name: extract splunk forwarder
+  unarchive:
+    src: "{{ splunkforwarder_installation_file_path }}"
+    dest: /opt
+
+- name: change splunk root directory ownership to root
+  file:
+    path: /opt/splunkforwarder
+    owner: root
+    group: root
+    mode: '0755'
+    recurse: yes
+  tags: ['perms']
+
+- name: create admin credentials with user-seed.conf
+  copy:
+    src: user-seed.conf
+    dest: /opt/splunkforwarder/etc/system/local
+    owner: root
+    group: root
+    mode: '0644'
+  tags: ['creds']
+
+- name: ensure splunkforwarder service starts at boot time
+  command: "/opt/splunkforwarder/bin/splunk enable boot-start --accept-license"
+  tags:
+    - bootstart
+
+- name: add splunk forwarder
+  command: "/opt/splunkforwarder/bin/splunk add forward-server 10.1.10.3:9997"
+  tags:
+    - forwardserver
+
+- name: add monitor for syslogs
+  command: "/opt/splunkforwarder/bin/splunk add monitor /var/log/messages -index apl_syslogs"
+  tags:
+    - syslogs
+
+- name: add monitor for auditlogs
+  command: "/opt/splunkforwarder/bin/splunk add monitor /var/log/audit -index apl_auditlogs"
+  tags:
+    - auditlogs
+
+- name: start splunkforwarder
+  command: "/opt/splunkforwarder/bin/splunk start"
+  tags:
+    - startforwarder

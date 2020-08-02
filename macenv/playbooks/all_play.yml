@@ -1,8 +1,0 @@
----
-- hosts: all
-  become: true
-  tasks:
-    - name: install common packages "{{ packages }}"
-      yum:
-        name: "{{ packages }}"
-        state: latest
