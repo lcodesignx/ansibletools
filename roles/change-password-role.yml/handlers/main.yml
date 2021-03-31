@@ -1,0 +1,5 @@
+- name: syslog
+  syslogger:
+      msg: "root password changed"
+      priority: "info"
+      facility: "auth"
