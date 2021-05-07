@@ -1,0 +1,14 @@
+---
+- hosts: all
+  become: true
+  tasks:
+      - name: allow apache access to files in /data/new_repo
+        sefcontext:
+            target: '/data/new_repos(/.*)?'
+            setype: httpd_sys_content_t
+            state: present
+        notify: restorecon
+
+  handlers:
+      - name: restorecon
+        command: restorecon -irv /data/new_repos

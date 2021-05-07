@@ -1,0 +1,28 @@
+---
+- hosts: repos
+  become: true
+  tasks:
+      - name: reposync rhel6 repos
+        command: reposync -p /fs/nfs_share/repos --download-metadata --repo="{{ item }}" -n
+        when: ansible_distribution_major_version == "6"
+        tags: ['repo6']
+        loop: "{{ rhel6_repos }}"
+  
+      - name: reposync rhel8 repos
+        command: reposync -p /fs/nfs_share/repos --download-metadata --repo="{{ item }}" -n
+        when: ansible_distribution_major_version == "8"
+        tags: ['repo8']
+        loop: "{{ rhel8_repos }}"
+
+      - name: run tarfile-download script for rhel7 repos
+        command: /home/lupera1/Gitrepos/bitbucket/bashtools/tarfile-download
+        when: ansible_distribution == "Ubuntu"
+        tags: ['repo7']
+
+      - name: copy all repos to flashdrive
+        copy:
+            src: /nfs_share/repos 
+            dest: /flashdrive
+            remote_src: yes
+        when: ansible_distribution == "Ubuntu"
+        tags: ['cp_repos']
