@@ -1,0 +1,197 @@
+---
+- name: enable postgresql firewall
+  firewalld:
+    port: 5432/tcp
+    state: enabled
+    permanent: yes
+    immediate: yes
+  tags: ['install']
+
+- name: install PostgreSQL 10 server 
+  yum:
+    name: postgresql-server
+    state: latest
+  tags: ['install']
+
+- name: initialize database
+  command: /usr/bin/postgresql-setup initdb 
+  tags: ['install','initdb']
+
+- name: ensure PostgreSQL service is started and enabled
+  service:
+    name: postgresql 
+    state: started 
+    enabled: yes 
+  tags: ['install','start']
+
+- name: modify pg_hba configuration file
+  lineinfile:
+    path: /var/lib/pgsql/data/pg_hba.conf
+    insertafter: '\# IPv4 local connections:'
+    line: "host    all             all             10.0.0.0/8              trust"
+  notify: restart postgresql
+  tags: ['install']
+
+- name: modify postgresql configuration file
+  lineinfile:
+    path: /var/lib/pgsql/data/postgresql.conf
+    regexp: '\#listen_addresses ='
+    line: "listen_addresses = '*'"
+  notify: restart postgresql
+  tags: ['install', 'pg_conf']
+
+- name: install dependencies
+  yum:
+    name:
+      - python2-pip
+      - platform-python-setuptools
+      - python2-virtualenv
+      - python3-virtualenv
+    state: latest 
+  tags:
+    - deps
+
+- name: install psycopg2 module
+  pip:
+    name: psycopg2-binary
+  tags:
+    - psycopg2
+
+# MASTER CONFIGURATION
+- name: create the archive directory
+  file:
+    path: /var/lib/pgsql/data/mnt/server/archivedir
+    state: directory
+    mode: '0755'
+  tags:
+    - archive_dir
+    - master
+
+- name: create replication user on master server 
+  become_user: postgres
+  postgresql_user:
+    name: "{{ db_user }}"
+    password: "{{ db_pass }}"
+    role_attr_flags: REPLICATION
+    expires: infinity
+  tags:
+    - dbuser
+    - master
+
+- name: enable replication 
+  lineinfile:
+    path: /var/lib/pgsql/data/pg_hba.conf
+    line: 'host    replication             replica             {{ slave_ip }}/32              trust'
+  notify: restart postgresql
+  tags:
+    - rep_enable
+    - master
+
+- name: configure write ahead log on master server
+  lineinfile:
+    path: /var/lib/pgsql/data/postgresql.conf
+    regexp: '\#wal_level = replica'
+    line: 'wal_level = hot_standby'
+  notify: restart postgresql
+  tags:
+    - wal_config
+    - master
+
+- name: configure archiving on master server
+  lineinfile:
+    path: /var/lib/pgsql/data/postgresql.conf
+    regexp: '\#warchive_mode = off'
+    line: 'archive_mode = on'
+  notify: restart postgresql
+  tags:
+    - archive_mode
+    - master
+
+- name: configure archive command on master server
+  lineinfile:
+    path: /var/lib/pgsql/data/postgresql.conf
+    regexp: '\#archive_command ='
+    line: "archive_command = 'test ! -f mnt/server/archivedir/%f && cp %p mnt/server/archivedir/%f'"
+  notify: restart postgresql
+  tags:
+    - archive_command
+    - master
+
+- name: change value for the maximum number of wal sender processes
+  lineinfile:
+    path: /var/lib/pgsql/data/postgresql.conf
+    regexp: '\#max_wal_senders = '
+    line: 'max_wal_senders = 3'
+  notify: restart postgresql
+  tags:
+    - max_wal_senders
+    - master
+
+# SLAVE CONFIGURATION
+- name: stop postgresql service on standby server
+  service:
+    name: postgresql
+    state: stopped
+  tags:
+    - stop-postgres
+    - slave
+
+- name: rename postgresql data directory on slave to data_backup
+  command: mv /var/lib/pgsql/data /var/lib/pgsql/data_backup
+  tags:
+    - replace_data_dir
+    - slave
+
+- name: recreate data directory on slave
+  file:
+    path: /var/lib/pgsql/data
+    state: directory
+    owner: postgres
+    group: postgres
+    mode: '0700'
+  tags:
+    - create_datadir
+    - slave 
+
+- name: ensure standby signal file exists
+  copy:
+      content: ""
+      dest: "{{ data_dir }}/standy.signal"
+      force: no
+      owner: postgres
+      group: postgres
+      mode: '0644'
+  tags: ['standbysignal', 'slave']
+
+- name: primary connection info
+  lineinfile:
+      path: "{{ data_dir }}/postgresql.conf"
+      regexp: '\#primary_conninfo = '
+      line: "primary_conninfo: 'host={{ master_ip }} port=5432 user={{ rep_user }} password={{ pass }}'"
+  notify: restart postgresql
+  tags: ['primaryconninfo', 'slave']
+
+- name: promote trigger file
+  lineinfile:
+      path: "{{ data_dir }}/postgresql.conf"
+      regexp: '\#promote_trigger_file ='
+      line: "promote_trigger_file = '/tmp/postgresql.trigger/5432'"
+  notify: restart postgresql
+  tags: ['primaryconninfo', 'slave']
+
+- name: run the backup utility on slave
+  become_user: postgres
+  shell: /usr/bin/pg_basebackup -h {{ master_ip }} -U {{ db_user }} -D  /var/lib/pgsql/data -v
+  tags:
+    - bak
+    - slave
+
+- name: set hot_standby mode to on, on slave
+  lineinfile:
+    path: /var/lib/pgsql/data/postgresql.conf
+    regexp: '\#hot_standby = on'
+    line: 'hot_standby = on'
+  notify: restart postgresql
+  tags:
+    - hot_standby_slave
+    - slave
