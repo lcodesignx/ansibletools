@@ -1,0 +1,7 @@
+- name: copy STIG to remote system
+  copy:
+      src: U_RHEL_8_STIG_V1R1_Manual-xccdf.xml
+      dest: /tmp
+      
+- name: run oscap scan
+  command: oscap xccdf eval --results "{{ result_path }}" --report "{{ report_path }}" "{{ STIG }}"

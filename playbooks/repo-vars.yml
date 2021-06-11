@@ -1,0 +1,10 @@
+rhel6_repos:
+    - rhel-6-server-els-optional-rpms
+    - rhel-6-server-els-rpms
+    - rhel-6-server-rpms
+
+rhel8_repos:
+    - rhel-8-for-x86_64-appstream-rpms
+    - rhel-8-for-x86_64-baseos-rpms
+    - rhel-8-for-x86_64-supplementary-rpms
+    - JHUAPL_EPEL_8_EPEL_8

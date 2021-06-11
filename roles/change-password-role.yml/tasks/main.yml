@@ -1,0 +1,7 @@
+- name: change password for root user
+  user:
+      name: root
+      update_password: always
+      password: "{{ newpassword|password_hash('sha512') }}"
+  when: ansible_distribution == 'RedHat'
+  notify: syslog
