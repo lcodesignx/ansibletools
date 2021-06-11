@@ -23,7 +23,7 @@
   tags: ['creds']
 
 - name: ensure splunk service starts at boot time
-  command: "/opt/splunk/bin/splunk enable boot-start --accept-license"
+  command: "/opt/splunk/bin/splunk enable boot-start -systemd-managed 1 --accept-license --answer-yes --no-prompt"
   tags:
     - bootstart
 
