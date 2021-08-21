@@ -1,0 +1,22 @@
+---
+- hosts: all
+  become: yes
+  gather_facts: false
+  tasks:
+    - name: copy yum-autoupdate file
+      copy:
+        src: yum-autoupdate
+        dest: /usr/sbin/
+        owner: root
+        group: root
+        mode: u=rwx
+
+    - name: create cron file under /etc/cron.d to update system daily
+      cron:
+        name: yum autoupdate
+        weekday: "2"
+        minute: "0"
+        hour: "21"
+        user: root
+        job: "YUMINTERACTIVE=0 /usr/sbin/yum-autoupdate"
+        cron_file: ansible_yum-autoupdate

@@ -1,0 +1,7 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - debug: var=ansible_lsb.id
+    - debug: var=ansible_lsb.major_release
+    - debug: var=ansible_lsb.release
