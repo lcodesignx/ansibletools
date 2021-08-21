@@ -22,7 +22,7 @@
 
 - name: create confluence home directory
   file:
-      path: /opt/altassian/confluence-home
+      path: /opt/atlassian/confluence-home
       state: directory
       mode: '0755'
   tags: ['homedir']
